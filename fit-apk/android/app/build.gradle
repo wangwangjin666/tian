@@ -3,6 +3,14 @@ apply plugin: 'com.android.application'
 android {
     namespace = "com.fitguide.workout"
     compileSdk = rootProject.ext.compileSdkVersion
+    signingConfigs {
+        release {
+            storeFile file('fit-release.keystore')
+            storePassword 'fitguide2026'
+            keyAlias 'fitkey'
+            keyPassword 'fitguide2026'
+        }
+    }
     defaultConfig {
         applicationId "com.fitguide.workout"
         minSdkVersion rootProject.ext.minSdkVersion
@@ -20,6 +28,7 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
         }
     }
 }
