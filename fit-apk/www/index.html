@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
+<meta name="theme-color" content="#0f1115" />
+<title>健身动作指南</title>
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <h1 id="page-title">今日训练</h1>
+    <button id="rest-btn" class="icon-btn" title="休息计时器">⏱</button>
+  </header>
+
+  <main id="view"></main>
+
+  <nav class="tabbar">
+    <a href="#/today" data-tab="today"><span>🏋️</span>训练</a>
+    <a href="#/library" data-tab="library"><span>📖</span>动作库</a>
+    <a href="#/history" data-tab="history"><span>📅</span>记录</a>
+    <a href="#/about" data-tab="about"><span>ℹ️</span>关于</a>
+  </nav>
+
+  <div id="rest-overlay" class="overlay hidden">
+    <div class="rest-card">
+      <div class="rest-time" id="rest-time">1:30</div>
+      <div class="rest-label">休息中…</div>
+      <div class="rest-actions">
+        <button id="rest-add">+15s</button>
+        <button id="rest-skip" class="primary">跳过</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal" class="overlay hidden">
+    <div class="modal-card" id="modal-card"></div>
+  </div>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="data/exercises.js?v=2"></script>
+  <script src="app.js?v=2"></script>
+</body>
+</html>
