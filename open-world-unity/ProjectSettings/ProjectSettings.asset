@@ -1,0 +1,15 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!129 &1
+PlayerSettings:
+  productName: Open World Explorer
+  defaultScreenWidth: 1280
+  defaultScreenHeight: 720
+  defaultScreenFullScreen: 0
+  defaultScreenOrientation: 4
+  targetPlatform: 19
+  usePlayerLog: 1
+  scriptingBackend:
+    Standalone: 1
+  apiCompatibilityLevel:
+    Standalone: 6
