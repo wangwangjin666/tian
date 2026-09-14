@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>开放世界 · Open World Explorer</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="game-container">
+    <canvas id="game-canvas"></canvas>
+
+    <!-- HUD -->
+    <div id="hud">
+      <div id="hud-top-left">
+        <div class="hud-box">
+          <div class="hud-label">坐标</div>
+          <div id="hud-coords" class="hud-value">X: 0, Y: 0</div>
+        </div>
+        <div class="hud-box">
+          <div class="hud-label">生物群系</div>
+          <div id="hud-biome" class="hud-value">—</div>
+        </div>
+        <div class="hud-box">
+          <div class="hud-label">时间</div>
+          <div id="hud-time" class="hud-value">06:00</div>
+        </div>
+      </div>
+
+      <div id="hud-top-right">
+        <button id="btn-pause" aria-label="暂停">❚❚</button>
+      </div>
+
+      <div id="hud-bottom-right">
+        <canvas id="minimap" width="160" height="160"></canvas>
+      </div>
+
+      <div id="hud-bottom-left">
+        <div id="joystick">
+          <div id="joystick-base">
+            <div id="joystick-stick"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading screen -->
+    <div id="loading">
+      <div class="spinner"></div>
+      <div class="loading-text">正在生成世界...</div>
+    </div>
+
+    <!-- Pause menu -->
+    <div id="pause-menu" class="hidden">
+      <div class="menu-panel">
+        <h1>暂停</h1>
+        <div class="menu-stats">
+          <div>种子: <span id="menu-seed">—</span></div>
+          <div>已加载区块: <span id="menu-chunks">0</span></div>
+          <div>NPC 数量: <span id="menu-npcs">0</span></div>
+        </div>
+        <button id="btn-resume">继续游戏</button>
+        <button id="btn-new-seed">新世界</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/noise.js"></script>
+  <script src="js/biomes.js"></script>
+  <script src="js/world.js"></script>
+  <script src="js/input.js"></script>
+  <script src="js/camera.js"></script>
+  <script src="js/player.js"></script>
+  <script src="js/pathfinding.js"></script>
+  <script src="js/npc.js"></script>
+  <script src="js/minimap.js"></script>
+  <script src="js/renderer.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

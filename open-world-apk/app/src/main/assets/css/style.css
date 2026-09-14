@@ -1,0 +1,293 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #0a0a12;
+  font-family: -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  color: #e8e8f0;
+  user-select: none;
+}
+
+#game-container {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+}
+
+#game-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+/* ===== HUD ===== */
+#hud {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+#hud-top-left {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+#hud-bottom-left {
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+}
+
+#hud-bottom-right {
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+}
+
+.hud-box {
+  background: rgba(10, 12, 24, 0.72);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(120, 140, 200, 0.25);
+  border-radius: 8px;
+  padding: 8px 14px;
+  min-width: 140px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+.hud-box.small {
+  min-width: auto;
+  font-size: 12px;
+  opacity: 0.85;
+}
+
+.hud-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #8a90b0;
+  margin-bottom: 2px;
+}
+
+.hud-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: #f0f0ff;
+  font-variant-numeric: tabular-nums;
+}
+
+.key {
+  display: inline-block;
+  background: rgba(120, 140, 200, 0.2);
+  border: 1px solid rgba(120, 140, 200, 0.4);
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-size: 11px;
+  font-family: monospace;
+  margin: 0 2px;
+}
+
+/* ===== Minimap ===== */
+#minimap {
+  border: 2px solid rgba(120, 140, 200, 0.4);
+  border-radius: 6px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+  image-rendering: pixelated;
+}
+
+/* ===== Loading ===== */
+#loading {
+  position: absolute;
+  inset: 0;
+  background: #0a0a12;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  z-index: 100;
+  transition: opacity 0.5s;
+}
+
+#loading.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid rgba(120, 140, 200, 0.2);
+  border-top-color: #6c8aff;
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loading-text {
+  font-size: 16px;
+  color: #a0a8c8;
+  letter-spacing: 2px;
+}
+
+/* ===== Pause Menu ===== */
+#pause-menu {
+  position: absolute;
+  inset: 0;
+  background: rgba(5, 6, 15, 0.8);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+}
+
+#pause-menu.hidden {
+  display: none;
+}
+
+.menu-panel {
+  background: rgba(20, 22, 40, 0.95);
+  border: 1px solid rgba(120, 140, 200, 0.3);
+  border-radius: 14px;
+  padding: 32px 40px;
+  min-width: 320px;
+  text-align: center;
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.6);
+}
+
+.menu-panel h1 {
+  font-size: 28px;
+  margin-bottom: 20px;
+  background: linear-gradient(135deg, #6c8aff, #b06cff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.menu-stats {
+  font-size: 13px;
+  color: #8a90b0;
+  margin-bottom: 24px;
+  line-height: 1.8;
+}
+
+.menu-stats span {
+  color: #d0d4e8;
+  font-weight: 600;
+}
+
+.menu-panel button {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  margin-top: 10px;
+  background: linear-gradient(135deg, #4a5fc0, #6c8aff);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.1s, box-shadow 0.2s;
+  pointer-events: auto;
+}
+
+.menu-panel button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(108, 138, 255, 0.4);
+}
+
+.menu-panel button:active {
+  transform: translateY(0);
+}
+
+/* ===== 移动端触摸控制 ===== */
+#hud-top-right {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  pointer-events: auto;
+}
+
+#btn-pause {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 1px solid rgba(120, 140, 200, 0.4);
+  background: rgba(10, 12, 24, 0.72);
+  color: #e8e8f0;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(6px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+#btn-pause:active {
+  background: rgba(60, 70, 120, 0.9);
+}
+
+/* ===== 虚拟摇杆 ===== */
+#hud-bottom-left {
+  pointer-events: auto;
+}
+
+#joystick {
+  width: 130px;
+  height: 130px;
+}
+
+#joystick-base {
+  position: relative;
+  width: 130px;
+  height: 130px;
+  border-radius: 50%;
+  background: rgba(10, 12, 24, 0.5);
+  border: 2px solid rgba(120, 140, 200, 0.35);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  touch-action: none;
+}
+
+#joystick-stick {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 48px;
+  height: 48px;
+  margin: -24px 0 0 -24px;
+  border-radius: 50%;
+  background: rgba(120, 140, 200, 0.7);
+  border: 2px solid rgba(150, 170, 230, 0.8);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  will-change: transform;
+}
+
+/* 桌面端默认隐藏摇杆，仅在触摸设备显示 */
+@media (pointer: coarse) {
+  #joystick, #btn-pause {
+    display: flex;
+  }
+}
+
+@media (pointer: fine) {
+  #joystick {
+    display: none;
+  }
+}

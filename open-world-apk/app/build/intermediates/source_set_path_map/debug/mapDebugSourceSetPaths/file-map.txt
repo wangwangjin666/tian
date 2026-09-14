@@ -1,0 +1,7 @@
+com.openworld.game.app-pngs-0 /workspace/open-world-apk/app/build/generated/res/pngs/debug
+com.openworld.game.app-resValues-1 /workspace/open-world-apk/app/build/generated/res/resValues/debug
+com.openworld.game.app-packageDebugResources-2 /workspace/open-world-apk/app/build/intermediates/incremental/debug/packageDebugResources/merged.dir
+com.openworld.game.app-packageDebugResources-3 /workspace/open-world-apk/app/build/intermediates/incremental/debug/packageDebugResources/stripped.dir
+com.openworld.game.app-debug-4 /workspace/open-world-apk/app/build/intermediates/merged_res/debug/mergeDebugResources
+com.openworld.game.app-debug-5 /workspace/open-world-apk/app/src/debug/res
+com.openworld.game.app-main-6 /workspace/open-world-apk/app/src/main/res

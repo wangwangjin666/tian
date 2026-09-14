@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">开放世界探索</string>
+    <style name="Theme.OpenWorld" parent="@android:style/Theme.Black.NoTitleBar.Fullscreen">
+    </style>
+</resources>

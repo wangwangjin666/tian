@@ -1,0 +1,4 @@
+<resources>
+    <style name="Theme.OpenWorld" parent="@android:style/Theme.Black.NoTitleBar.Fullscreen">
+    </style>
+</resources>
