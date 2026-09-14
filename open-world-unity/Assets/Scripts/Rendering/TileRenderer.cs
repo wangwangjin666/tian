@@ -51,6 +51,12 @@ public class TileRenderer : MonoBehaviour
                         // 瓦片过渡规则：检测相邻瓦片，调整颜色实现平滑过渡
                         Color finalColor = tile.biome.color;
                         
+                        // 洞穴渲染：洞穴内部颜色变暗
+                        if (tile.isCave)
+                        {
+                            finalColor = Color.Lerp(finalColor, Color.black, 0.6f);
+                        }
+                        
                         // 检查四个方向的邻居
                         var left = world.GetTile(wx - 1, wy);
                         var right = world.GetTile(wx + 1, wy);

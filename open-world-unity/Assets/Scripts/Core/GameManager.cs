@@ -12,6 +12,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private CameraFollow cameraFollow;
     [SerializeField] private DayNightCycle dayNight;
     [SerializeField] private TileRenderer tileRenderer;
+    [SerializeField] private DecorationRenderer decorationRenderer;
     [SerializeField] private HUD hud;
     [SerializeField] private Minimap minimap;
 
@@ -44,6 +45,7 @@ public class GameManager : MonoBehaviour
 
         // 初始化渲染
         if (tileRenderer != null) tileRenderer.Init(worldGenerator);
+        if (decorationRenderer != null) decorationRenderer.Init(worldGenerator);
 
         // 生成NPC
         SpawnNPCs(npcCount, spawn);
@@ -53,6 +55,7 @@ public class GameManager : MonoBehaviour
         {
             hud.SetPlayer(player);
             hud.SetDayNight(dayNight);
+            hud.SetWorld(worldGenerator);
         }
         if (minimap != null)
         {
@@ -73,6 +76,10 @@ public class GameManager : MonoBehaviour
         if (tileRenderer != null)
         {
             tileRenderer.UpdateRender(player.TileX, player.TileY);
+        }
+        if (decorationRenderer != null)
+        {
+            decorationRenderer.UpdateRender(player.TileX, player.TileY);
         }
     }
 

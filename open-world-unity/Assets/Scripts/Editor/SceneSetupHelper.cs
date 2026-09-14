@@ -51,6 +51,10 @@ public static class SceneSetupHelper
         // 创建 TileRenderer
         var rendererObj = new GameObject("TileRenderer");
         rendererObj.AddComponent<TileRenderer>();
+        
+        // 创建 DecorationRenderer
+        var decRendererObj = new GameObject("DecorationRenderer");
+        decRendererObj.AddComponent<DecorationRenderer>();
 
         // 创建 Canvas + HUD
         var canvasObj = new GameObject("Canvas");
@@ -77,6 +81,10 @@ public static class SceneSetupHelper
         // Time Text
         var timeText = CreateTextObject("TimeText", hudPanel, new Vector2(10, -70));
         timeText.text = "00:00";
+        
+        // Cave Text
+        var caveText = CreateTextObject("CaveText", hudPanel, new Vector2(10, -100));
+        caveText.text = "";
 
         // HUD Component
         var hud = canvasObj.AddComponent<HUD>();
@@ -98,11 +106,12 @@ public static class SceneSetupHelper
         gmObj.AddComponent<GameManager>();
 
         Debug.Log("[OpenWorld] Scene setup complete! Please drag references in Inspector:");
-        Debug.Log("  1. GameManager → drag WorldGenerator, Player, CameraFollow, DayNightCycle, TileRenderer, HUD, Minimap");
-        Debug.Log("  2. HUD → drag CoordsText, BiomeText, TimeText, DayNightCycle, Player");
+        Debug.Log("  1. GameManager → drag WorldGenerator, Player, CameraFollow, DayNightCycle, TileRenderer, DecorationRenderer, HUD, Minimap");
+        Debug.Log("  2. HUD → drag CoordsText, BiomeText, TimeText, CaveText, DayNightCycle, Player, WorldGenerator");
         Debug.Log("  3. Minimap → drag WorldGenerator, Player");
-        Debug.Log("  4. Create a 1x1 white sprite and assign to TileRenderer's tilePrefab");
-        Debug.Log("  5. Press Play!");
+        Debug.Log("  4. TileRenderer → drag WorldGenerator, assign tilePrefab (1x1 white sprite)");
+        Debug.Log("  5. DecorationRenderer → drag WorldGenerator, assign grassPrefab, flowerPrefab, bushPrefab");
+        Debug.Log("  6. Press Play!");
     }
 
     private static GameObject CreateUIObject(string name, GameObject parent)
