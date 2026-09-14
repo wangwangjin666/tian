@@ -1,0 +1,221 @@
+{
+  "record": {
+    "title": "ESP32-S3-CAM N16R8 板子档案",
+    "generated": "2026-09-14",
+    "project": "D:\\Projects\\helmet_final\\yolo_detect",
+    "note": "confidence 字段说明数据来源：hw_verified=硬件直读实测 / project_annotation=项目源码注释 / historical=系统历史记录（可能有保留）"
+  },
+
+  "chip": {
+    "confidence": "hw_verified",
+    "source": "esptool v5.3.0 flash-id / verify-flash over native USB (COM3)",
+    "model": "ESP32-S3",
+    "package": "QFN56",
+    "revision": "v0.2",
+    "features": ["Wi-Fi", "BT 5 (LE)", "Dual Core + LP Core", "240MHz", "Embedded PSRAM 8MB (AP_3v3)"],
+    "crystal_frequency_mhz": 40,
+    "usb_mode": "USB-Serial/JTAG",
+    "mac": "44:1b:f6:ca:ad:ec",
+    "flash": {
+      "size_bytes": 16777216,
+      "size_human": "16MB",
+      "manufacturer_id": "0xc2",
+      "manufacturer_name": "GigaDevice (兆易创新)",
+      "device_id": "0x2018",
+      "type_in_efuse": "quad (4 data lines)",
+      "voltage_set_by_efuse": "3.3V"
+    },
+    "psram": {
+      "size": "8MB",
+      "type": "Embedded PSRAM (AP_3v3)"
+    },
+    "n16r8_decode": "N16 = 16MB Flash, R8 = 8MB PSRAM"
+  },
+
+  "board": {
+    "confidence": "project_annotation",
+    "source": "D:\\Projects\\helmet_final\\yolo_detect\\board_config.h:16 与 camera_pins.h:297-315",
+    "model": "安信可 (Ai-Thinker) ESP32-S3-CAM N16R8",
+    "notes": "OV2640 摄像头出厂焊好",
+    "camera_model_define": "CAMERA_MODEL_ESP32S3_EYE",
+    "camera_pins": {
+      "PWDN_GPIO_NUM": -1,
+      "RESET_GPIO_NUM": -1,
+      "XCLK_GPIO_NUM": 15,
+      "SIOD_GPIO_NUM": 4,
+      "SIOC_GPIO_NUM": 5,
+      "Y2_GPIO_NUM": 11,
+      "Y3_GPIO_NUM": 9,
+      "Y4_GPIO_NUM": 8,
+      "Y5_GPIO_NUM": 10,
+      "Y6_GPIO_NUM": 12,
+      "Y7_GPIO_NUM": 18,
+      "Y8_GPIO_NUM": 17,
+      "Y9_GPIO_NUM": 16,
+      "VSYNC_GPIO_NUM": 6,
+      "HREF_GPIO_NUM": 7,
+      "PCLK_GPIO_NUM": 13
+    },
+    "camera_pin_notes": "GPIO 19/20 (native USB D-/D+) 未被摄像头占用，因此原生 USB 可用且干净",
+    "previous_board": {
+      "define": "CAMERA_MODEL_CUSTOM_ESP32S3",
+      "status": "已退货 (FPC 引脚方案，见 board_config.h:15 注释)"
+    }
+  },
+
+  "ports": [
+    {
+      "silkscreen": "OTG",
+      "type": "native USB (USB-Serial/JTAG)",
+      "vid_pid": "303A:1001",
+      "status": "OK",
+      "com_port": "COM3",
+      "capabilities": ["烧录", "串口", "verify-flash", "无需按 BOOT 键"],
+      "confidence": "hw_verified"
+    },
+    {
+      "silkscreen": "UART",
+      "type": "USB-UART bridge (CH343)",
+      "vid_pid": "1A86:55D3",
+      "status": "DEAD_HARDWARE",
+      "symptom": "插上后板上灯亮（VBUS/GND 供电正常），但 Windows 完全枚举不到：无设备、无 COM 口、无报错设备、Kernel-PnP 日志零事件",
+      "ruled_out": ["线缆（换线无效）", "驱动（系统内有 CH343 记录，WCH 驱动已装）", "频段/端口协商（协商失败会留报错设备）"],
+      "conclusion": "数据链路故障 —— CH343 芯片或 D+/D- 走线损坏。无热风枪无法修复，也不值得修。",
+      "confidence": "hw_verified"
+    }
+  ],
+
+  "windows_device_records": {
+    "confidence": "historical",
+    "note": "包含已拔出的幽灵设备。当前在线：无。",
+    "entries": [
+      {
+        "instance_id": "USB\\VID_303A&PID_1001\\44:1B:F6:CA:AD:EC",
+        "description": "本板原生 USB",
+        "com_port": "COM3"
+      },
+      {
+        "instance_id": "USB\\VID_303A&PID_4001\\123456",
+        "description": "TinyUSB CDC 模式 (USBMode=default / USB-OTG)",
+        "com_port": "COM5"
+      },
+      {
+        "instance_id": "USB\\VID_1A86&PID_55D3\\5C84326319",
+        "description": "CH343 桥",
+        "com_port": "COM6"
+      },
+      {
+        "instance_id": "USB\\VID_1A86&PID_55D3\\5CE5129872",
+        "description": "CH343 桥",
+        "com_port": "COM4"
+      },
+      {
+        "instance_id": "USB\\VID_303A&PID_1001\\9C:CC:01:64:D1:04",
+        "description": "另一块板 = Clawd Mochi 的 ESP32-C3"
+      },
+      {
+        "instance_id": "USB\\VID_303A&PID_1001\\14:C1:9F:C9:22:A4",
+        "description": "另一块 ESP32-S3，推测为已退货那块"
+      }
+    ],
+    "uncertainty": "无法确定 COM4/COM6 两条 CH343 记录是否来自本板 UART 口 —— 已退货那块板子同样带 CH343。因此『本板 UART 口以前能用』是保留性推论。"
+  },
+
+  "firmware_on_chip": {
+    "confidence": "hw_verified",
+    "method": "esptool read-flash 0x8000 0x9000 + verify-flash 0x10000 <local bin>",
+    "identity": "与本机编译产物 100% 逐字节一致",
+    "app_name": "arduino-lib-builder",
+    "app_name_note": "⚠️ 这是 Arduino ESP32 核心编译系统的固有产物名，所有 sketch 都显示这个，不是固件异常。认固件请用 verify-flash + 分区表。",
+    "version": "43a8f6d",
+    "idf_version": "v5.5.4",
+    "build_timestamp": "Jun  2 2026 11:17:54",
+    "size_bytes": 3228512,
+    "size_human": "3.08 MB",
+    "partition_usage_percent": 38.5,
+    "elf_sha256": "3ee8e55c451d2ff1d15409800703815e87656cd1b48ef64faed21facc0a5136a",
+    "verify_flash_result": "Verification successful (digest matched)",
+    "sketch": "yolo_detect.ino (YOLOv5n INT8 160 安全帽检测 + OV2640)",
+    "local_build": {
+      "dir": "C:\\Users\\34989\\AppData\\Local\\arduino\\sketches\\89A1102D5DD4B1FDC003D09AF4F7EB0B",
+      "bin": "yolo_detect.ino.bin",
+      "bin_mtime": "2026-09-01 18:25",
+      "fqbn": "esp32:esp32:esp32s3:FlashSize=16M,PSRAM=opi,PartitionScheme=custom",
+      "cdc_on_boot": "未指定 → 默认 Disabled",
+      "usb_mode": "未指定 → 默认 hwcdc (Hardware CDC and JTAG)"
+    },
+    "partition_table": [
+      { "label": "nvs",     "type": "0x01", "subtype": "0x02", "offset": "0x00009000", "size": "0x00005000" },
+      { "label": "otadata", "type": "0x01", "subtype": "0x00", "offset": "0x0000e000", "size": "0x00002000" },
+      { "label": "app0",    "type": "0x00", "subtype": "0x00", "offset": "0x00010000", "size": "0x00800000" },
+      { "label": "spiffs",  "type": "0x01", "subtype": "0x82", "offset": "0x00810000", "size": "0x007f0000" }
+    ],
+    "partition_match": "与 D:\\Projects\\helmet_final\\yolo_detect\\partitions.csv 逐字节一致（该自定义方案为本项目独有）"
+  },
+
+  "runtime_observations": {
+    "confidence": "hw_verified",
+    "date": "2026-09-14",
+    "wifi": {
+      "mode": "STA",
+      "ssid": "wang",
+      "band": "2.4GHz",
+      "channel": 6,
+      "hotspot_bssid": "82:90:2d:43:31:19",
+      "board_ip": "192.168.211.184",
+      "ip_note": "热点 DHCP 分配，每次重连可能变化"
+    },
+    "http_endpoints": {
+      "port_80": ["/", "/status", "/control", "/capture", "/bmp", "/xclk", "/reg", "/greg", "/pll", "/resolution"],
+      "port_81": ["/stream"]
+    },
+    "probe_results": {
+      "GET /": "HTTP 200, 66774 bytes",
+      "port 81": "open (MJPEG multipart/x-mixed-replace)",
+      "GET /capture": "HTTP 200, 10609 bytes, 有效 JPEG 320x240"
+    },
+    "sensor_status": {
+      "framesize": 6,
+      "quality": 12,
+      "xclk": 20,
+      "pixformat": 0,
+      "vflip": 1,
+      "hmirror": 0,
+      "awb": 1,
+      "aec": 1,
+      "agc": 1,
+      "aec_value": 490,
+      "agc_gain": 2,
+      "gainceiling": 248,
+      "raw_gma": 1,
+      "lenc": 1,
+      "dcw": 1,
+      "colorbar": 0
+    },
+    "camera_verified": "抓到真实画面（木条吊顶 + 窗帘），证明 OV2640 工作正常",
+    "detection_visualization": "检测框由 detect_annot.cpp 直接画在 /stream 上，浏览器可见，不依赖串口"
+  },
+
+  "operational_notes": [
+    "烧录用原生口 COM3（旧的 COM6 命令已作废），无需按 BOOT 键",
+    "串口默认读不到 —— 不是故障：CDCOnBoot=Disabled 让 Serial.begin(115200) 指向 UART0 (GPIO43/44) 而非 USB",
+    "要看串口二选一：① 重编译加 CDCOnBoot=cdc（会覆盖固件，可用本地留档原样烧回）② 外置 USB-TTL 接 GPIO43/44 绕过损坏的板载 CH343",
+    "定位板子 IP 最可靠的办法：连上同一热点后按 MAC 44:1b:f6:ca:ad:ec 在 ARP 表里认人",
+    "不要用项目名判断固件 —— app_desc.project_name 恒为 arduino-lib-builder"
+  ],
+
+  "useful_commands": {
+    "read_chip_id": "\"C:\\Users\\34989\\AppData\\Local\\Arduino15\\packages\\esp32\\tools\\esptool_py\\5.3.0\\esptool.exe\" --port COM3 --baud 460800 flash-id",
+    "read_partition_table": "esptool.exe --port COM3 --baud 460800 read-flash 0x8000 0x9000 part.bin",
+    "verify_firmware": "esptool.exe --port COM3 --baud 460800 verify-flash 0x10000 \"C:\\Users\\34989\\AppData\\Local\\arduino\\sketches\\89A1102D5DD4B1FDC003D09AF4F7EB0B\\yolo_detect.ino.bin\"",
+    "list_com_ports": "powershell -NoProfile -Command \"[System.IO.Ports.SerialPort]::GetPortNames()\"",
+    "find_board_by_mac": "powershell -NoProfile -Command \"arp -a | Select-String '44-1b-f6-ca-ad-ec'\"",
+    "list_esp_devices": "powershell -NoProfile -Command \"Get-PnpDevice -PresentOnly | Where-Object { $_.InstanceId -match 'VID_303A|VID_1A86' } | Format-Table Status,Class,InstanceId\""
+  },
+
+  "unknown": [
+    "购买记录 / 订单号",
+    "板子正反面丝印照片、厂商批次",
+    "本板 UART 口历史上是否曾成功枚举（见 windows_device_records.uncertainty）"
+  ]
+}
