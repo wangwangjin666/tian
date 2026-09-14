@@ -46,7 +46,29 @@ public class TileRenderer : MonoBehaviour
                 if (tileGrid[dy, dx] != null)
                 {
                     var sr = tileGrid[dy, dx].GetComponent<SpriteRenderer>();
-                    if (sr != null) sr.color = tile.biome.color;
+                    if (sr != null)
+                    {
+                        // 瓦片过渡规则：检测相邻瓦片，调整颜色实现平滑过渡
+                        Color finalColor = tile.biome.color;
+                        
+                        // 检查四个方向的邻居
+                        var left = world.GetTile(wx - 1, wy);
+                        var right = world.GetTile(wx + 1, wy);
+                        var down = world.GetTile(wx, wy - 1);
+                        var up = world.GetTile(wx, wy + 1);
+                        
+                        // 如果邻居是不同的生物群系，混合颜色
+                        if (left.biome.id != tile.biome.id)
+                            finalColor = Color.Lerp(finalColor, left.biome.color, 0.15f);
+                        if (right.biome.id != tile.biome.id)
+                            finalColor = Color.Lerp(finalColor, right.biome.color, 0.15f);
+                        if (down.biome.id != tile.biome.id)
+                            finalColor = Color.Lerp(finalColor, down.biome.color, 0.15f);
+                        if (up.biome.id != tile.biome.id)
+                            finalColor = Color.Lerp(finalColor, up.biome.color, 0.15f);
+                        
+                        sr.color = finalColor;
+                    }
                     tileGrid[dy, dx].transform.position = new Vector3(wx, wy, 0);
                 }
             }

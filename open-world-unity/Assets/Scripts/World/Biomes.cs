@@ -58,4 +58,19 @@ public static class Biomes
         }
         return Snow;
     }
+
+    /// <summary>混合两个生物群系（用于过渡区域）</summary>
+    public static BiomeData BlendBiomes(BiomeData a, BiomeData b, float t)
+    {
+        t = Mathf.Clamp01(t);
+        return new BiomeData
+        {
+            id = t < 0.5f ? a.id : b.id,
+            name = t < 0.5f ? a.name : b.name,
+            color = Color.Lerp(a.color, b.color, t),
+            walkable = t < 0.5f ? a.walkable : b.walkable,
+            moveCost = Mathf.Lerp(a.moveCost, b.moveCost, t),
+            vegetation = Mathf.Lerp(a.vegetation, b.vegetation, t)
+        };
+    }
 }

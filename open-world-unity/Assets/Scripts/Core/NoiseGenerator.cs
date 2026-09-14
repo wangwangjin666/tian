@@ -60,6 +60,45 @@ public class NoiseGenerator
         return Fbm(x + warpX * warpStrength, y + warpY * warpStrength, octaves, frequency, 1f, lacunarity, persistence);
     }
 
+    /// <summary>Voronoi 噪声 - 返回到最近种子点的距离，用于生成自然区域边界</summary>
+    public float Voronoi2(float x, float y, float cellSize = 10f)
+    {
+        float px = x / cellSize;
+        float py = y / cellSize;
+        
+        int ix = Mathf.FloorToInt(px);
+        int iy = Mathf.FloorToInt(py);
+        
+        float minDist = float.MaxValue;
+        
+        // 检查周围 3x3 的网格
+        for (int dy = -1; dy <= 1; dy++)
+        {
+            for (int dx = -1; dx <= 1; dx++)
+            {
+                int cx = ix + dx;
+                int cy = iy + dy;
+                
+                // 使用哈希函数为每个网格单元生成随机种子点
+                float seedX = cx + Hash2(cx, cy);
+                float seedY = cy + Hash2(cy, cx);
+                
+                float dist = Mathf.Sqrt((px - seedX) * (px - seedX) + (py - seedY) * (py - seedY));
+                minDist = Mathf.Min(minDist, dist);
+            }
+        }
+        
+        return minDist;
+    }
+
+    /// <summary>元胞自动机噪声 - 用于洞穴生成</summary>
+    public float CellularAutomata2(float x, float y, int iterations = 3)
+    {
+        // 简化版本：返回基于噪声的洞穴概率
+        float n = Fbm(x * 0.1f, y * 0.1f, 4);
+        return n > 0.3f ? 1f : 0f;
+    }
+
     private int[] BuildPermutation(int s)
     {
         int[] baseArr = new int[256];
@@ -83,6 +122,14 @@ public class NoiseGenerator
 
     private float Fade(float t) => t * t * t * (t * (t * 6 - 15) + 10);
     private float Lerp(float a, float b, float t) => a + t * (b - a);
+    
+    /// <summary>2D 哈希函数，返回 [0, 1]</summary>
+    public float Hash2(int x, int y)
+    {
+        int h = x * 374761393 ^ y * 668265263;
+        h = (h ^ (h >> 13)) * 1274126177;
+        return ((uint)(h ^ (h >> 16))) / 4294967296f;
+    }
 
     private float Grad2(int hash, float x, float y)
     {
