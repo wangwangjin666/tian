@@ -4,6 +4,7 @@
  * 采用区块(Chunk)系统实现无限世界：
  * - 世界被划分为 CHUNK_SIZE × CHUNK_SIZE 的区块
  * - 每个区块按需生成并缓存
+ * - 远离玩家的区块自动卸载（LRU 式，防止内存无限增长）
  * - 区块数据：高度图、温度、湿度、生物群系、装饰物
  *
  * 生成管线：
@@ -16,6 +17,7 @@
 
 const CHUNK_SIZE = 32;       // 每个区块 32×32 格
 const TILE_SIZE = 24;        // 每格像素大小
+const MAX_LOADED_CHUNKS = 96; // 最多保留的区块数（超出则卸载最远的）
 
 class World {
   constructor() {
@@ -44,6 +46,34 @@ class World {
       this.chunks.set(key, chunk);
     }
     return chunk;
+  }
+
+  /**
+   * 围绕玩家更新区块加载状态：
+   * - 预加载玩家周围的区块（避免移动时卡顿）
+   * - 卸载距离过远的区块（控制内存）
+   */
+  updateAround(px, py, radius = 2) {
+    const pcx = Math.floor(px / CHUNK_SIZE);
+    const pcy = Math.floor(py / CHUNK_SIZE);
+
+    // 预加载周围区块
+    for (let dy = -radius; dy <= radius; dy++) {
+      for (let dx = -radius; dx <= radius; dx++) {
+        this.getChunk(pcx + dx, pcy + dy);
+      }
+    }
+
+    // 卸载过远区块（曼哈顿距离 > radius+2）
+    if (this.chunks.size > MAX_LOADED_CHUNKS) {
+      const limit = radius + 3;
+      for (const [key, chunk] of this.chunks) {
+        const dist = Math.max(Math.abs(chunk.cx - pcx), Math.abs(chunk.cy - pcy));
+        if (dist > limit) {
+          this.chunks.delete(key);
+        }
+      }
+    }
   }
 
   /** 生成一个区块的所有数据 */
@@ -92,13 +122,20 @@ class World {
 
         // 装饰物：基于群系植被密度 + 确定性散点
         if (biome.walkable && biome.vegetation > 0) {
-          // 用格子坐标做确定性随机
           const r = this._hash2(wx, wy);
-          if (r < biome.vegetation * 0.4) {
+          const density = biome.vegetation * 0.4;
+          if (r < density) {
+            // 细分装饰物类型：岩石 / 灌木 / 花 / 树
+            const r2 = this._hash2(wx + 1, wy + 1);
+            let type;
+            if (r2 < 0.12) type = 'rock';
+            else if (r2 < 0.30) type = 'bush';
+            else if (r2 < 0.42 && biome.vegetation < 0.5) type = 'flower';
+            else type = 'tree';
             decorations.push({
               x: wx, y: wy,
-              type: r < biome.vegetation * 0.1 ? 'rock' : 'tree',
-              variant: Math.floor(this._hash2(wx + 1, wy + 1) * 4)
+              type,
+              variant: Math.floor(this._hash2(wx + 2, wy + 2) * 4)
             });
           }
         }

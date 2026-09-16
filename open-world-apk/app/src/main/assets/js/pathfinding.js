@@ -6,11 +6,64 @@
  * - A* 搜索使用启发式 + 实际成本，找到最优路径
  * - 支持 8 方向移动（含对角线，对角线成本为 √2）
  * - 限制搜索范围以保证性能
+ *
+ * 性能优化：
+ * - 二叉堆优先队列替代线性扫描（O(log n) 取最小）
+ * - 数值键编码替代字符串键（避免 GC 压力）
  */
+
+/** 最小二叉堆（按 f 值排序） */
+class MinHeap {
+  constructor() { this.a = []; }
+  get size() { return this.a.length; }
+  push(node) {
+    const a = this.a;
+    a.push(node);
+    let i = a.length - 1;
+    while (i > 0) {
+      const p = (i - 1) >> 1;
+      if (a[p].f <= a[i].f) break;
+      const t = a[p]; a[p] = a[i]; a[i] = t;
+      i = p;
+    }
+  }
+  pop() {
+    const a = this.a;
+    if (a.length === 0) return undefined;
+    const top = a[0];
+    const last = a.pop();
+    if (a.length > 0) {
+      a[0] = last;
+      let i = 0;
+      const n = a.length;
+      for (;;) {
+        const l = i * 2 + 1, r = l + 1;
+        let m = i;
+        if (l < n && a[l].f < a[m].f) m = l;
+        if (r < n && a[r].f < a[m].f) m = r;
+        if (m === i) break;
+        const t = a[m]; a[m] = a[i]; a[i] = t;
+        i = m;
+      }
+    }
+    return top;
+  }
+}
 
 class Pathfinding {
   constructor(world) {
     this.world = world;
+  }
+
+  /** 坐标 → 数值键（支持 ±32768 范围，用乘法避免位运算溢出） */
+  _key(x, y) { return (x + 32768) * 65536 + (y + 32768); }
+
+  /** 数值键 → 坐标 */
+  _unkey(key) {
+    return {
+      x: Math.floor(key / 65536) - 32768,
+      y: (key % 65536) - 32768
+    };
   }
 
   /**
@@ -28,13 +81,14 @@ class Pathfinding {
     // 距离过远
     if (Math.abs(tx - sx) + Math.abs(ty - sy) > maxRange * 2) return null;
 
-    const startKey = `${sx},${sy}`;
-    const endKey = `${tx},${ty}`;
+    const startKey = this._key(sx, sy);
 
-    // open 集：待探索节点（用数组 + 手动排序，节点少时足够）
-    const open = [{ x: sx, y: sy, g: 0, f: 0 }];
+    const open = new MinHeap();
+    open.push({ x: sx, y: sy, g: 0, f: 0, key: startKey });
+
     const cameFrom = new Map();
     const gScore = new Map();
+    const closed = new Set();
     gScore.set(startKey, 0);
 
     // 8 方向
@@ -46,29 +100,30 @@ class Pathfinding {
     let iterations = 0;
     const maxIterations = maxRange * maxRange * 4;
 
-    while (open.length > 0 && iterations < maxIterations) {
+    while (open.size > 0 && iterations < maxIterations) {
       iterations++;
 
-      // 取 f 最小的节点（小顶堆优化，这里用线性查找+pop）
-      let bestIdx = 0;
-      for (let i = 1; i < open.length; i++) {
-        if (open[i].f < open[bestIdx].f) bestIdx = i;
-      }
-      const current = open.splice(bestIdx, 1)[0];
-      const currentKey = `${current.x},${current.y}`;
+      const current = open.pop();
+      // 已处理过的节点跳过（惰性删除）
+      if (closed.has(current.key)) continue;
+      closed.add(current.key);
 
       // 到达终点
       if (current.x === tx && current.y === ty) {
-        return this._reconstruct(cameFrom, currentKey);
+        return this._reconstruct(cameFrom, current.key);
       }
+
+      const curG = gScore.get(current.key);
 
       for (const [dx, dy, baseCost] of dirs) {
         const nx = current.x + dx;
         const ny = current.y + dy;
-        const nKey = `${nx},${ny}`;
 
         // 越界（相对起点的范围限制）
         if (Math.abs(nx - sx) > maxRange || Math.abs(ny - sy) > maxRange) continue;
+
+        const nKey = this._key(nx, ny);
+        if (closed.has(nKey)) continue;
 
         // 不可行走
         if (!this.world.isWalkable(nx, ny)) continue;
@@ -81,24 +136,15 @@ class Pathfinding {
 
         // 移动成本 = 基础距离 × 地形权重
         const moveCost = baseCost * this.world.getMoveCost(nx, ny);
-        const tentativeG = (gScore.get(currentKey) ?? Infinity) + moveCost;
+        const tentativeG = curG + moveCost;
 
         if (tentativeG < (gScore.get(nKey) ?? Infinity)) {
-          cameFrom.set(nKey, currentKey);
+          cameFrom.set(nKey, current.key);
           gScore.set(nKey, tentativeG);
 
           // 启发式：欧几里得距离（允许对角线时更紧）
           const h = Math.hypot(tx - nx, ty - ny);
-          const f = tentativeG + h;
-
-          // 添加到 open（若已存在则更新）
-          const existing = open.find(n => n.x === nx && n.y === ny);
-          if (existing) {
-            existing.g = tentativeG;
-            existing.f = f;
-          } else {
-            open.push({ x: nx, y: ny, g: tentativeG, f });
-          }
+          open.push({ x: nx, y: ny, g: tentativeG, f: tentativeG + h, key: nKey });
         }
       }
     }
@@ -110,7 +156,7 @@ class Pathfinding {
     const path = [];
     let cur = endKey;
     while (cameFrom.has(cur)) {
-      const [x, y] = cur.split(',').map(Number);
+      const { x, y } = this._unkey(cur);
       path.unshift({ x, y });
       cur = cameFrom.get(cur);
     }

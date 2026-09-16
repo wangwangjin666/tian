@@ -2,6 +2,11 @@
  * main.js — 游戏主循环
  *
  * 串联所有子系统：噪声 → 世界 → 输入 → 玩家 → 相机 → 渲染 → UI
+ *
+ * v1.1 新增：
+ * - 双指捏合 / 鼠标滚轮缩放
+ * - 天数与探索里程统计
+ * - 区块流式加载与卸载
  */
 
 class Game {
@@ -14,7 +19,7 @@ class Game {
 
     this.world = new World();
     this.input = new Input();
-    this.camera = new Camera(this.canvas);
+    this.camera = new Camera();
     this.renderer = new Renderer(this.canvas, this.world, this.camera);
     this.pathfinding = new Pathfinding(this.world);
 
@@ -22,6 +27,11 @@ class Game {
     const spawn = this._findSpawn();
     this.player = new Player(this.world, spawn.x, spawn.y);
     this.camera.follow(this.player.x * TILE_SIZE, this.player.y * TILE_SIZE);
+    this.camera.x = this.player.x * TILE_SIZE;
+    this.camera.y = this.player.y * TILE_SIZE;
+
+    // 预加载出生点周围区块
+    this.world.updateAround(this.player.x, this.player.y, 2);
 
     // 生成 NPC
     this.npcs = [];
@@ -32,7 +42,12 @@ class Game {
     this.paused = false;
     this.lastTime = performance.now();
 
+    // 统计
+    this.distance = 0; // 已行走格数
+    this._lastDay = 1;
+
     this._setupUI();
+    this._setupZoom();
     this._resize();
     window.addEventListener('resize', () => this._resize());
 
@@ -80,6 +95,45 @@ class Game {
     if (pauseBtn) pauseBtn.addEventListener('click', () => this._togglePause());
   }
 
+  /** 缩放交互：鼠标滚轮 + 触摸双指捏合 */
+  _setupZoom() {
+    // 滚轮缩放
+    this.canvas.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      const factor = e.deltaY < 0 ? 1.12 : 1 / 1.12;
+      this.camera.zoomBy(factor);
+    }, { passive: false });
+
+    // 双指捏合
+    let pinchDist = 0;
+    const getDist = (touches) => {
+      const dx = touches[0].clientX - touches[1].clientX;
+      const dy = touches[0].clientY - touches[1].clientY;
+      return Math.hypot(dx, dy);
+    };
+
+    this.canvas.addEventListener('touchstart', (e) => {
+      if (e.touches.length === 2) {
+        pinchDist = getDist(e.touches);
+      }
+    }, { passive: true });
+
+    this.canvas.addEventListener('touchmove', (e) => {
+      if (e.touches.length === 2 && pinchDist > 0) {
+        e.preventDefault();
+        const d = getDist(e.touches);
+        if (d > 0) {
+          this.camera.zoomBy(d / pinchDist);
+          pinchDist = d;
+        }
+      }
+    }, { passive: false });
+
+    this.canvas.addEventListener('touchend', () => {
+      pinchDist = 0;
+    }, { passive: true });
+  }
+
   _togglePause(force) {
     this.paused = force !== undefined ? force : !this.paused;
     document.getElementById('pause-menu').classList.toggle('hidden', !this.paused);
@@ -100,8 +154,16 @@ class Game {
     this._spawnNPCs(15);
     this.minimap.world = this.world;
     this.minimap.player = this.player;
+    this.minimap.invalidate();
     this.renderer.world = this.world;
+    this.renderer.particles = [];
+    this.renderer.time = 0.25;
+    this.renderer.day = 1;
+    this.distance = 0;
+    this.world.updateAround(this.player.x, this.player.y, 2);
     this.camera.follow(this.player.x * TILE_SIZE, this.player.y * TILE_SIZE);
+    this.camera.x = this.player.x * TILE_SIZE;
+    this.camera.y = this.player.y * TILE_SIZE;
     this._togglePause(false);
   }
 
@@ -130,24 +192,36 @@ class Game {
       this._update(dt);
     }
 
-    this._render();
+    this._render(dt);
     this._updateHUD();
     this.input.clearFrame();
   }
 
   _update(dt) {
     // 时间推进（昼夜循环）
+    const prevTime = this.renderer.time;
     this.renderer.time = (this.renderer.time + dt / this.renderer.dayLength) % 1;
+    if (this.renderer.time < prevTime) {
+      this.renderer.day++; // 跨过午夜 → 新的一天
+    }
+
+    const prevX = this.player.x;
+    const prevY = this.player.y;
 
     this.player.update(dt, this.input);
+    this.distance += Math.hypot(this.player.x - prevX, this.player.y - prevY);
+
     this.camera.follow(this.player.x * TILE_SIZE, this.player.y * TILE_SIZE);
     this.camera.update();
+
+    // 流式加载/卸载区块
+    this.world.updateAround(this.player.x, this.player.y, 2);
 
     for (const npc of this.npcs) npc.update(dt);
   }
 
-  _render() {
-    this.renderer.render(this.player, this.npcs);
+  _render(dt) {
+    this.renderer.render(this.player, this.npcs, dt);
     this.minimap.render();
   }
 
@@ -161,6 +235,10 @@ class Game {
     const hh = String(Math.floor(h)).padStart(2, '0');
     const mm = String(Math.floor((h % 1) * 60)).padStart(2, '0');
     document.getElementById('hud-time').textContent = `${hh}:${mm}`;
+
+    // 天数与里程
+    document.getElementById('hud-day').textContent = `第 ${this.renderer.day} 天`;
+    document.getElementById('hud-distance').textContent = `${Math.floor(this.distance)} 格`;
   }
 }
 
