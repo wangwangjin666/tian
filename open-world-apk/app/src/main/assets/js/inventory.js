@@ -107,6 +107,7 @@ class HarvestSystem {
       // 树桩 60 秒后重生，其他 120 秒
       respawnAt: performance.now() + (rule.leavesStump ? 60000 : 120000)
     });
+    chunk._harvestVersion = (chunk._harvestVersion || 0) + 1;
 
     this.inventory.add(rule.resource, rule.count);
     return { resource: rule.resource, count: rule.count };
@@ -120,6 +121,7 @@ class HarvestSystem {
       for (const [key, info] of chunk.harvested) {
         if (now >= info.respawnAt) {
           chunk.harvested.delete(key);
+          chunk._harvestVersion = (chunk._harvestVersion || 0) + 1;
         }
       }
     }

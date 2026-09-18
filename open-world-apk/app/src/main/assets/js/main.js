@@ -20,7 +20,7 @@ class Game {
     this.world = new World();
     this.input = new Input();
     this.camera = new Camera();
-    this.renderer = new Renderer(this.canvas, this.world, this.camera);
+    this.renderer = new Renderer3D(this.canvas, this.world, this.camera);
     this.pathfinding = new Pathfinding(this.world);
 
     // 背包与采集系统
@@ -189,7 +189,7 @@ class Game {
     this.minimap.invalidate();
     this.renderer.world = this.world;
     this.renderer.particles = [];
-    this.renderer.time = 0.25;
+    this.renderer.time = 0.35;
     this.renderer.day = 1;
     this.distance = 0;
     // 重置采集系统
